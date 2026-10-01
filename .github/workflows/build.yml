@@ -66,12 +66,11 @@ jobs:
 
 
       # ==========================================
-      # PREPARE APP + BIOMETRIC LOCK INJECTION
+      # PREPARE APP
       # ==========================================
       - name: Prepare app
         run: |
           test -f index.html
-          test -f icon.png
           test -d images
 
           TXT_COUNT=$(ls -1 *.txt 2>/dev/null | wc -l)
@@ -89,7 +88,6 @@ jobs:
           cp -r images www/images
 
           echo "✅ Files copied."
-          echo "--- Contents of www ---"
           ls -la www
 
           # ==========================================
@@ -169,7 +167,7 @@ jobs:
           with open("www/index.html", "w", encoding="utf-8") as f:
               f.write(html)
 
-          print("✅ Biometric lock injected into www/index.html")
+          print("✅ Biometric lock injected")
           PY
 
 
@@ -253,10 +251,7 @@ jobs:
           with open(main_activity, "r", encoding="utf-8") as f:
               original = f.read()
 
-          package_match = re.search(
-              r'^\s*package\s+([^;]+);',
-              original, re.MULTILINE
-          )
+          package_match = re.search(r'^\s*package\s+([^;]+);', original, re.MULTILINE)
 
           if not package_match:
               raise SystemExit("Package name not found.")
@@ -361,7 +356,6 @@ jobs:
           fi
 
           echo "✅ AUTO-DETECTED ALIAS: $ALIAS"
-          echo "DETECTED_KEY_ALIAS=$ALIAS" >> "$GITHUB_ENV"
 
           cat >> android/gradle.properties <<EOF
 
@@ -391,11 +385,7 @@ jobs:
           text = re.sub(r'compileSdk\s+\d+', 'compileSdk 35', text, count=1)
 
           if re.search(r'minSdkVersion\s+rootProject\.ext\.minSdkVersion', text):
-              text = re.sub(
-                  r'minSdkVersion\s+rootProject\.ext\.minSdkVersion',
-                  'minSdkVersion 23',
-                  text, count=1
-              )
+              text = re.sub(r'minSdkVersion\s+rootProject\.ext\.minSdkVersion', 'minSdkVersion 23', text, count=1)
           else:
               text = re.sub(r'minSdkVersion\s+\d+', 'minSdkVersion 23', text, count=1)
 
@@ -405,10 +395,7 @@ jobs:
           text = re.sub(r'versionCode\s+\d+', 'versionCode ' + os.environ["VERSION_CODE"], text, count=1)
           text = re.sub(r'versionName\s+"[^"]+"', 'versionName "' + os.environ["VERSION_NAME"] + '"', text, count=1)
 
-          text = re.sub(
-              r'\n\s*signingConfigs\s*\{.*?\n\s*\}\s*(?=\n\s*buildTypes)',
-              '', text, count=1, flags=re.S
-          )
+          text = re.sub(r'\n\s*signingConfigs\s*\{.*?\n\s*\}\s*(?=\n\s*buildTypes)', '', text, count=1, flags=re.S)
 
           signing_block = '''
               signingConfigs {
@@ -427,19 +414,11 @@ jobs:
           if "signingConfigs {" not in text:
               text = text.replace("    buildTypes {", signing_block + "    buildTypes {", 1)
 
-          release_pattern = r'(buildTypes\s*\{\s*release\s*\{)'
           if "signingConfig signingConfigs.release" not in text:
-              text = re.sub(
-                  release_pattern,
-                  r'\1\n            signingConfig signingConfigs.release',
-                  text, count=1, flags=re.S
-              )
+              text = re.sub(r'(buildTypes\s*\{\s*release\s*\{)', r'\1\n            signingConfig signingConfigs.release', text, count=1, flags=re.S)
 
           if re.search(r'buildTypes\s*\{.*?release\s*\{', text, re.S):
-              release_match = re.search(
-                  r'(buildTypes\s*\{\s*release\s*\{)(.*?)(\n\s*\})',
-                  text, re.S
-              )
+              release_match = re.search(r'(buildTypes\s*\{\s*release\s*\{)(.*?)(\n\s*\})', text, re.S)
               if release_match:
                   release_body = release_match.group(2)
                   if "minifyEnabled" in release_body:
@@ -479,11 +458,7 @@ jobs:
           ]
 
           for permission in permissions:
-              pattern = (
-                  r'\s*<uses-permission\s+'
-                  r'android:name="android\.permission\.'
-                  + permission + r'"\s*/>'
-              )
+              pattern = r'\s*<uses-permission\s+android:name="android\.permission\.' + permission + r'"\s*/>'
               text = re.sub(pattern, '', text)
 
           with open(path, "w", encoding="utf-8") as f:
@@ -494,7 +469,7 @@ jobs:
 
 
       # ==========================================
-      # ADD PERMISSIONS (INTERNET + BIOMETRIC)
+      # ADD PERMISSIONS
       # ==========================================
       - name: Add permissions
         run: |
@@ -519,7 +494,7 @@ jobs:
           with open(path, "w", encoding="utf-8") as f:
               f.write(text)
 
-          print("Permissions added (INTERNET + USE_BIOMETRIC + USE_FINGERPRINT).")
+          print("Permissions added.")
           PY
 
 
@@ -531,24 +506,94 @@ jobs:
 
 
       # ==========================================
-      # FIND ICONS
+      # FIND ANY IMAGE AS ICON
       # ==========================================
-      - name: Find icons
+      - name: Find any image as icon
         run: |
           python3 - <<'PY'
           import os
+          import glob
+
+          # اولویت ۱: icon.png
+          # اولویت ۲: هر png دیگه توی ریشه
+          # اولویت ۳: هر jpg / jpeg توی ریشه
+          # اولویت ۴: هیچی → ساخت آیکون پیش‌فرض
+
+          icon_file = None
 
           if os.path.exists("icon.png"):
               icon_file = "icon.png"
+              print("✅ از icon.png استفاده می‌شود")
           else:
-              raise SystemExit("❌ icon.png not found in root! Please add icon.png")
+              # جستجو در ریشه (نه پوشه‌ها)
+              candidates = []
+              for ext in ["*.png", "*.PNG", "*.jpg", "*.JPG", "*.jpeg", "*.JPEG", "*.webp", "*.WEBP"]:
+                  candidates.extend(glob.glob(ext))
+              # حذف فایل‌های تکراری
+              candidates = list(set(candidates))
+              # فقط فایل‌های ریشه (نه زیرپوشه)
+              candidates = [c for c in candidates if os.path.isfile(c)]
 
-          print("=" * 50)
-          print("LAUNCHER ICON:", icon_file)
-          print("=" * 50)
+              if candidates:
+                  # اول png، بعد jpg، بعد بقیه
+                  pngs = [c for c in candidates if c.lower().endswith(".png")]
+                  jpgs = [c for c in candidates if c.lower().endswith((".jpg", ".jpeg"))]
+                  others = [c for c in candidates if c not in pngs and c not in jpgs]
 
-          with open("CUSTOM_ICON", "w") as f:
-              f.write(icon_file)
+                  if pngs:
+                      icon_file = sorted(pngs)[0]
+                  elif jpgs:
+                      icon_file = sorted(jpgs)[0]
+                  elif others:
+                      icon_file = sorted(others)[0]
+
+                  print(f"✅ از عکس موجود استفاده می‌شود: {icon_file}")
+              else:
+                  print("⚠️ هیچ عکسی توی ریشه نبود — ساخت آیکون پیش‌فرض")
+
+          # اگه عکس پیدا شد، تبدیل به icon.png کن
+          if icon_file:
+              from PIL import Image
+              img = Image.open(icon_file).convert("RGBA")
+              # مربعی کردن
+              size = max(img.size)
+              square = Image.new("RGBA", (size, size), (10, 10, 15, 255))
+              square.paste(img, ((size - img.width) // 2, (size - img.height) // 2), img)
+              square = square.resize((1024, 1024), Image.Resampling.LANCZOS)
+              square.save("icon.png")
+              print("✅ icon.png ساخته شد از:", icon_file)
+          else:
+              # ساخت آیکون پیش‌فرض
+              from PIL import Image, ImageDraw
+              size = 1024
+              img = Image.new("RGBA", (size, size), (10, 10, 15, 255))
+              draw = ImageDraw.Draw(img)
+
+              cx, cy = size // 2, size // 2
+              r_outer = int(size * 0.38)
+              r_inner = int(size * 0.30)
+
+              draw.ellipse(
+                  [cx - r_outer, cy - r_outer, cx + r_outer, cy + r_outer],
+                  fill=(201, 168, 106, 255)
+              )
+              draw.ellipse(
+                  [cx - r_inner, cy - r_inner, cx + r_inner, cy + r_inner],
+                  fill=(10, 10, 15, 255)
+              )
+
+              draw.polygon(
+                  [
+                      (cx + int(r_outer * 0.6), cy + int(r_outer * 0.6)),
+                      (cx + int(r_outer * 1.3), cy + int(r_outer * 1.3)),
+                      (cx + int(r_outer * 1.1), cy + int(r_outer * 1.5)),
+                      (cx + int(r_outer * 0.4), cy + int(r_outer * 0.8)),
+                  ],
+                  fill=(201, 168, 106, 255)
+              )
+
+              img.save("icon.png")
+              print("✅ آیکون پیش‌فرض ساخته شد")
           PY
 
 
@@ -561,12 +606,7 @@ jobs:
           from PIL import Image
           import os
 
-          with open("CUSTOM_ICON", "r") as f:
-              filename = f.read().strip()
-
-          print("Loading launcher icon:", filename)
-
-          source = Image.open(filename).convert("RGBA")
+          source = Image.open("icon.png").convert("RGBA")
 
           sizes = {
               "mdpi": 48, "hdpi": 72, "xhdpi": 96,
@@ -581,7 +621,7 @@ jobs:
               icon.save(folder + "/ic_launcher_round.png")
               icon.save(folder + "/ic_launcher_foreground.png")
 
-          print("✅ Launcher icons created from", filename)
+          print("✅ Launcher icons created")
           PY
 
 
@@ -634,4 +674,3 @@ jobs:
         run: |
           rm -f Parvandeh.keystore
           rm -f android/app/Parvandeh.keystore
-          rm -f CUSTOM_ICON
