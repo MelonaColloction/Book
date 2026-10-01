@@ -244,26 +244,10 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  .reader-topbar .mark-btn {
-    background: rgba(201,168,106,0.1);
-    border: 1px solid rgba(201,168,106,0.25);
-    color: #c9a86a;
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-family: inherit; font-size: 0.75rem;
-    cursor: pointer; flex-shrink: 0;
-    transition: all 0.2s ease;
-  }
-
-  .reader-topbar .mark-btn:active { transform: scale(0.95); }
-  .reader-topbar .mark-btn.saved {
-    background: rgba(201,168,106,0.25); color: #f0e6d2;
-  }
-
   .reader-content {
     max-width: 720px;
     margin: 0 auto;
-    padding: 30px 22px 140px;
+    padding: 30px 22px 160px;
   }
 
   #readerStory {
@@ -508,6 +492,11 @@
   .progress-track {
     position: fixed; bottom: 0; left: 0; right: 0;
     height: 3px; background: #15151a; z-index: 20;
+    display: none;
+  }
+
+  .progress-track.show {
+    display: block;
   }
 
   .progress-bar {
@@ -516,32 +505,80 @@
     transition: width 0.15s linear;
   }
 
-  .reader-controls {
-    position: fixed; bottom: 20px; left: 50%;
-    transform: translateX(-50%);
-    display: flex; gap: 8px; z-index: 15;
-  }
-
-  .reader-controls button {
-    background: rgba(201,168,106,0.1);
-    border: 1px solid rgba(201,168,106,0.25);
-    color: #c9a86a;
-    border-radius: 999px;
-    padding: 9px 16px;
-    font-family: inherit; font-size: 0.75rem;
+  /* ============ دکمه‌های شناور ============ */
+  .fab-bookmark {
+    position: fixed;
+    bottom: 90px;
+    left: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c9a86a, #8a6d3b);
+    border: none;
+    color: #0a0a0c;
+    font-size: 1.5rem;
     cursor: pointer;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    transition: all 0.2s ease;
+    z-index: 25;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(201,168,106,0.4);
+    transition: all 0.25s ease;
+    font-family: inherit;
+    padding: 0;
+    line-height: 1;
   }
 
-  .reader-controls button:active {
-    transform: scale(0.95);
-    background: rgba(201,168,106,0.2);
+  .fab-bookmark.show {
+    display: flex;
   }
 
+  .fab-bookmark:active {
+    transform: scale(0.92);
+    box-shadow: 0 4px 12px rgba(201,168,106,0.6);
+  }
+
+  .fab-bookmark.saved {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+  }
+
+  .fab-jump {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(201,168,106,0.15);
+    border: 1px solid rgba(201,168,106,0.4);
+    color: #c9a86a;
+    font-size: 1.3rem;
+    cursor: pointer;
+    z-index: 25;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.25s ease;
+    font-family: inherit;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .fab-jump.show {
+    display: flex;
+  }
+
+  .fab-jump:active {
+    transform: scale(0.92);
+    background: rgba(201,168,106,0.3);
+  }
+
+  /* ============ توست ============ */
   .toast {
-    position: fixed; bottom: 80px; left: 50%;
+    position: fixed; bottom: 160px; left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: rgba(201,168,106,0.95);
     color: #0a0a0c;
@@ -553,6 +590,7 @@
     transition: all 0.3s ease;
     z-index: 100;
     white-space: nowrap;
+    max-width: 90%;
   }
 
   .toast.show {
@@ -568,6 +606,14 @@
     .story-card .info h3 { font-size: 1rem; }
     .story-image { height: 150px; }
     .about-hero h1 { font-size: 1.5rem; }
+    .fab-bookmark, .fab-jump {
+      width: 50px;
+      height: 50px;
+      font-size: 1.3rem;
+      bottom: 80px;
+    }
+    .fab-bookmark { left: 14px; }
+    .fab-jump { right: 14px; }
   }
 </style>
 </head>
@@ -597,7 +643,6 @@
   <div class="reader-topbar">
     <button class="back-btn" onclick="goBack()">→</button>
     <div class="reader-title" id="readerTitle">—</div>
-    <button class="mark-btn" id="markBtn" onclick="saveBookmark()">🔖 نشانه</button>
   </div>
   <div class="reader-content">
     <div id="readerStory"></div>
@@ -700,14 +745,13 @@
 </div>
 
 <!-- نوار پیشرفت -->
-<div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
-
-<!-- دکمه‌های خواندن -->
-<div class="reader-controls" id="readerControls" style="display:none;">
-  <button onclick="scrollTo({top:0, behavior:'smooth'})">↑ بالا</button>
-  <button onclick="jumpToBookmark()">🔖 نشانه</button>
-  <button onclick="scrollTo({top:document.body.scrollHeight, behavior:'smooth'})">↓ پایین</button>
+<div class="progress-track" id="progressTrack">
+  <div class="progress-bar" id="progressBar"></div>
 </div>
+
+<!-- دکمه‌های شناور -->
+<button class="fab-bookmark" id="fabBookmark" onclick="saveBookmark()" aria-label="نشانه">🔖</button>
+<button class="fab-jump" id="fabJump" onclick="jumpToBookmark()" aria-label="پرش به نشانه">⬆</button>
 
 <div class="toast" id="toast"></div>
 <script>
@@ -736,17 +780,78 @@ const STORIES = [
 const STORAGE_PREFIX = 'story_progress_';
 let currentStory = null;
 let autoSaveTimer = null;
-let userScrolled = false;
+let prefs = null;
+
+/* ============================================================
+   راه‌اندازی Capacitor Preferences
+   ============================================================ */
+async function initPrefs() {
+  try {
+    if (typeof Capacitor !== 'undefined' && Capacitor.Plugins) {
+      prefs = Capacitor.Plugins.Preferences;
+    }
+  } catch (e) {
+    prefs = null;
+  }
+  if (prefs) {
+    console.log('📦 Capacitor Preferences فعال است');
+  } else {
+    console.log('📦 از localStorage استفاده می‌شود');
+  }
+}
+
+/* ============================================================
+   ذخیره / خواندن اطلاعات
+   ============================================================ */
+async function setStorage(key, value) {
+  const jsonValue = JSON.stringify(value);
+
+  // Capacitor Preferences (مطمئن‌ترین روش برای اپ)
+  if (prefs) {
+    try {
+      await prefs.set({ key: key, value: jsonValue });
+    } catch (e) {
+      console.log('Preferences set error:', e);
+    }
+  }
+
+  // localStorage به عنوان پشتیبان (برای مرورگر)
+  try {
+    localStorage.setItem(key, jsonValue);
+  } catch (e) {}
+}
+
+async function getStorage(key) {
+  // اول Capacitor Preferences
+  if (prefs) {
+    try {
+      const result = await prefs.get({ key: key });
+      if (result && result.value) {
+        return JSON.parse(result.value);
+      }
+    } catch (e) {
+      console.log('Preferences get error:', e);
+    }
+  }
+
+  // بعد localStorage
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  } catch (e) {
+    return null;
+  }
+}
 
 /* ============================================================
    نمایش کتابخانه
    ============================================================ */
-function renderLibrary() {
+async function renderLibrary() {
   const list = document.getElementById('storiesList');
   list.innerHTML = '';
 
-  STORIES.forEach(story => {
-    const progress = getProgress(story.id);
+  for (const story of STORIES) {
+    const progress = await getProgress(story.id);
 
     const card = document.createElement('div');
     card.className = 'story-card';
@@ -771,7 +876,7 @@ function renderLibrary() {
     `;
 
     list.appendChild(card);
-  });
+  }
 }
 
 /* ============================================================
@@ -779,13 +884,16 @@ function renderLibrary() {
    ============================================================ */
 async function openStory(story) {
   currentStory = story;
-  userScrolled = false;
 
   document.getElementById('libraryPage').style.display = 'none';
   document.getElementById('aboutPage').style.display = 'none';
   document.getElementById('readerPage').style.display = 'block';
-  document.getElementById('readerControls').style.display = 'flex';
   document.getElementById('readerTitle').textContent = story.title;
+
+  // نمایش نوار پیشرفت و دکمه‌های شناور
+  document.getElementById('progressTrack').classList.add('show');
+  document.getElementById('fabBookmark').classList.add('show');
+  document.getElementById('fabJump').classList.add('show');
 
   const storyEl = document.getElementById('readerStory');
   storyEl.innerHTML = '<div style="text-align:center; color:#666; padding:40px;">در حال بارگذاری...</div>';
@@ -798,17 +906,22 @@ async function openStory(story) {
     storyEl.innerHTML = '';
     formatStory(text, storyEl);
 
-    // ===== پرش به آخرین محل ذخیره‌شده =====
-    setTimeout(() => {
-      const saved = getBookmark(story.id);
-      if (saved && saved > 0) {
-        window.scrollTo({ top: saved, behavior: 'auto' });
-        const percent = getProgress(story.id);
-        showToast('از جایی که موندی ادامه بده — ' + percent + '٪');
-      } else {
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      }
-    }, 250);
+    // صبر کن متن و عکس‌ها لود بشن
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    const bookmark = await getBookmark(story.id);
+    const progress = await getProgress(story.id);
+
+    if (bookmark && bookmark > 0) {
+      setTimeout(() => {
+        window.scrollTo({ top: bookmark, behavior: 'auto' });
+        if (progress > 0) {
+          showToast('از جایی که موندی ادامه بده — ' + progress + '٪');
+        }
+      }, 200);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
 
   } catch (err) {
     storyEl.innerHTML =
@@ -818,7 +931,7 @@ async function openStory(story) {
 }
 
 /* ============================================================
-   فرمت متن — با پشتیبانی از [IMG:path]
+   فرمت متن
    ============================================================ */
 function formatStory(text, container) {
   const cleanText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -884,22 +997,26 @@ function createStoryImage(src) {
 /* ============================================================
    برگشت به کتابخانه
    ============================================================ */
-function goBack() {
-  if (currentStory) saveBookmarkSilent();
+async function goBack() {
+  if (currentStory) await saveBookmarkSilent(false);
 
   document.getElementById('readerPage').style.display = 'none';
   document.getElementById('libraryPage').style.display = 'block';
-  document.getElementById('readerControls').style.display = 'none';
+  document.getElementById('progressTrack').classList.remove('show');
+  document.getElementById('fabBookmark').classList.remove('show');
+  document.getElementById('fabJump').classList.remove('show');
   document.getElementById('progressBar').style.width = '0%';
+
   window.scrollTo({ top: 0, behavior: 'auto' });
 
-  renderLibrary();
   currentStory = null;
 
   if (autoSaveTimer) {
     clearTimeout(autoSaveTimer);
     autoSaveTimer = null;
   }
+
+  await renderLibrary();
 }
 
 /* ============================================================
@@ -919,63 +1036,59 @@ function closeAbout() {
 }
 
 /* ============================================================
-   نشانه (ذخیره‌ی دستی با دکمه)
+   نشانه (دستی - با دکمه‌ی شناور)
    ============================================================ */
-function saveBookmark() {
+async function saveBookmark() {
   if (!currentStory) return;
-  const scrollPos = window.scrollY;
-  const total = document.documentElement.scrollHeight - window.innerHeight;
-  const percent = total > 0 ? Math.round((scrollPos / total) * 100) : 0;
 
-  localStorage.setItem(STORAGE_PREFIX + currentStory.id, JSON.stringify({
-    scroll: scrollPos, percent: percent, date: Date.now()
-  }));
+  await saveBookmarkSilent(true);
 
-  const btn = document.getElementById('markBtn');
-  btn.classList.add('saved');
-  btn.textContent = '✓ ذخیره شد';
-  setTimeout(() => {
-    btn.classList.remove('saved');
-    btn.textContent = '🔖 نشانه';
-  }, 1500);
-
-  showToast('نشانه ذخیره شد — ' + percent + '٪');
+  // انیمیشن دکمه
+  const fab = document.getElementById('fabBookmark');
+  if (fab) {
+    fab.classList.add('saved');
+    fab.textContent = '✓';
+    setTimeout(() => {
+      fab.classList.remove('saved');
+      fab.textContent = '🔖';
+    }, 1500);
+  }
 }
 
-/* ============================================================
-   ذخیره‌ی خودکار (بدون زدن دکمه)
-   ============================================================ */
-function saveBookmarkSilent() {
+async function saveBookmarkSilent(showMessage) {
   if (!currentStory) return;
+
   const scrollPos = window.scrollY;
   const total = document.documentElement.scrollHeight - window.innerHeight;
   const percent = total > 0 ? Math.round((scrollPos / total) * 100) : 0;
 
-  localStorage.setItem(STORAGE_PREFIX + currentStory.id, JSON.stringify({
-    scroll: scrollPos, percent: percent, date: Date.now()
-  }));
+  await setStorage(STORAGE_PREFIX + currentStory.id, {
+    scroll: scrollPos,
+    percent: percent,
+    date: Date.now()
+  });
+
+  if (showMessage) {
+    showToast('نشانه ذخیره شد — ' + percent + '٪');
+  }
 }
 
 /* ============================================================
    خواندن اطلاعات ذخیره‌شده
    ============================================================ */
-function getBookmark(storyId) {
-  try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_PREFIX + storyId));
-    return data ? data.scroll : 0;
-  } catch { return 0; }
+async function getBookmark(storyId) {
+  const data = await getStorage(STORAGE_PREFIX + storyId);
+  return data ? data.scroll : 0;
 }
 
-function getProgress(storyId) {
-  try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_PREFIX + storyId));
-    return data ? data.percent : 0;
-  } catch { return 0; }
+async function getProgress(storyId) {
+  const data = await getStorage(STORAGE_PREFIX + storyId);
+  return data ? data.percent : 0;
 }
 
-function jumpToBookmark() {
+async function jumpToBookmark() {
   if (!currentStory) return;
-  const scrollPos = getBookmark(currentStory.id);
+  const scrollPos = await getBookmark(currentStory.id);
   if (scrollPos > 0) {
     window.scrollTo({ top: scrollPos, behavior: 'smooth' });
     showToast('پرش به نشانه');
@@ -985,42 +1098,38 @@ function jumpToBookmark() {
 }
 
 /* ============================================================
-   نوار پیشرفت + ذخیره‌ی خودکار با اسکرول
+   نوار پیشرفت + ذخیره‌ی خودکار
    ============================================================ */
 const bar = document.getElementById('progressBar');
 
 window.addEventListener('scroll', () => {
   if (!currentStory) return;
 
-  userScrolled = true;
-
-  // نوار پیشرفت
   const h = document.documentElement;
   const total = h.scrollHeight - h.clientHeight;
   if (total > 0) bar.style.width = (h.scrollTop / total * 100) + '%';
 
-  // ذخیره‌ی خودکار با تأخیر ۱.۵ ثانیه (بعد از توقف اسکرول)
   if (autoSaveTimer) clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
-    saveBookmarkSilent();
-  }, 1500);
+    saveBookmarkSilent(false);
+  }, 1200);
 }, { passive: true });
 
 /* ============================================================
-   ذخیره‌ی خودکار موقع بستن اپ / پنهان شدن صفحه
+   ذخیره‌ی خودکار موقع بستن اپ
    ============================================================ */
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && currentStory) {
-    saveBookmarkSilent();
+    saveBookmarkSilent(false);
   }
 });
 
 window.addEventListener('beforeunload', () => {
-  if (currentStory) saveBookmarkSilent();
+  if (currentStory) saveBookmarkSilent(false);
 });
 
 window.addEventListener('pagehide', () => {
-  if (currentStory) saveBookmarkSilent();
+  if (currentStory) saveBookmarkSilent(false);
 });
 
 /* ============================================================
@@ -1038,7 +1147,10 @@ function showToast(msg) {
 /* ============================================================
    شروع
    ============================================================ */
-renderLibrary();
+(async function() {
+  await initPrefs();
+  await renderLibrary();
+})();
 </script>
 
 </body>
