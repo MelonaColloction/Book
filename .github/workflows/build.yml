@@ -172,6 +172,59 @@ jobs:
 
 
       # ==========================================
+      # OPTIMIZE IMAGES (SMART)
+      # ==========================================
+      - name: Optimize images
+        run: |
+          echo "🔧 Installing image optimization tools..."
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq pngquant jpegoptim optipng imagemagick
+
+          echo ""
+          echo "📊 حجم قبل از بهینه‌سازی:"
+          du -sh www/images
+          echo "--- تعداد فایل‌ها ---"
+          find www/images -type f | wc -l
+
+          # ==========================================
+          # مرحله ۱: کم کردن ابعاد عکس‌های بزرگ
+          # ==========================================
+          echo ""
+          echo "🔧 مرحله ۱: کم کردن ابعاد عکس‌های بزرگتر از ۱۲۰۰ پیکسل..."
+          find www/images -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) -print0 | while IFS= read -r -d '' file; do
+            mogrify -resize "1200x1200>" -strip "$file" 2>/dev/null || true
+          done
+
+          # ==========================================
+          # مرحله ۲: بهینه‌سازی PNG با حفظ کیفیت
+          # ==========================================
+          echo ""
+          echo "🖼️ مرحله ۲: بهینه‌سازی PNG ها (کیفیت ۸۵-۱۰۰٪)..."
+          find www/images -type f -iname "*.png" -print0 | while IFS= read -r -d '' file; do
+            pngquant --quality=85-100 --speed 1 --strip --force --output "$file" "$file" 2>/dev/null || \
+              optipng -o2 -quiet "$file" 2>/dev/null || true
+          done
+
+          # ==========================================
+          # مرحله ۳: بهینه‌سازی JPG
+          # ==========================================
+          echo ""
+          echo "🖼️ مرحله ۳: بهینه‌سازی JPG ها (کیفیت ۸۵٪)..."
+          find www/images -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) -print0 | while IFS= read -r -d '' file; do
+            jpegoptim --max=85 --strip-all --quiet "$file" 2>/dev/null || true
+          done
+
+          echo ""
+          echo "📊 حجم بعد از بهینه‌سازی:"
+          du -sh www/images
+          echo "--- تعداد فایل‌ها ---"
+          find www/images -type f | wc -l
+
+          echo ""
+          echo "✅ بهینه‌سازی کامل شد."
+
+
+      # ==========================================
       # CREATE PACKAGE.JSON
       # ==========================================
       - name: Create package.json
@@ -514,28 +567,19 @@ jobs:
           import os
           import glob
 
-          # اولویت ۱: icon.png
-          # اولویت ۲: هر png دیگه توی ریشه
-          # اولویت ۳: هر jpg / jpeg توی ریشه
-          # اولویت ۴: هیچی → ساخت آیکون پیش‌فرض
-
           icon_file = None
 
           if os.path.exists("icon.png"):
               icon_file = "icon.png"
               print("✅ از icon.png استفاده می‌شود")
           else:
-              # جستجو در ریشه (نه پوشه‌ها)
               candidates = []
               for ext in ["*.png", "*.PNG", "*.jpg", "*.JPG", "*.jpeg", "*.JPEG", "*.webp", "*.WEBP"]:
                   candidates.extend(glob.glob(ext))
-              # حذف فایل‌های تکراری
               candidates = list(set(candidates))
-              # فقط فایل‌های ریشه (نه زیرپوشه)
               candidates = [c for c in candidates if os.path.isfile(c)]
 
               if candidates:
-                  # اول png، بعد jpg، بعد بقیه
                   pngs = [c for c in candidates if c.lower().endswith(".png")]
                   jpgs = [c for c in candidates if c.lower().endswith((".jpg", ".jpeg"))]
                   others = [c for c in candidates if c not in pngs and c not in jpgs]
@@ -551,11 +595,9 @@ jobs:
               else:
                   print("⚠️ هیچ عکسی توی ریشه نبود — ساخت آیکون پیش‌فرض")
 
-          # اگه عکس پیدا شد، تبدیل به icon.png کن
           if icon_file:
               from PIL import Image
               img = Image.open(icon_file).convert("RGBA")
-              # مربعی کردن
               size = max(img.size)
               square = Image.new("RGBA", (size, size), (10, 10, 15, 255))
               square.paste(img, ((size - img.width) // 2, (size - img.height) // 2), img)
@@ -563,7 +605,6 @@ jobs:
               square.save("icon.png")
               print("✅ icon.png ساخته شد از:", icon_file)
           else:
-              # ساخت آیکون پیش‌فرض
               from PIL import Image, ImageDraw
               size = 1024
               img = Image.new("RGBA", (size, size), (10, 10, 15, 255))
@@ -652,7 +693,11 @@ jobs:
         run: |
           mkdir -p release
           cp android/app/build/outputs/apk/release/app-release.apk release/Parvandeh.apk
-          echo "Release prepared."
+
+          echo ""
+          echo "📦 حجم نهایی APK:"
+          du -h release/Parvandeh.apk
+          echo "✅ Release prepared."
 
 
       # ==========================================
