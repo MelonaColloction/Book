@@ -184,14 +184,12 @@ jobs:
           echo "📊 حجم قبل از بهینه‌سازی:"
           du -sh www/images
 
-          # مرحله ۱: کم کردن ابعاد عکس‌های بزرگ
           echo ""
           echo "🔧 مرحله ۱: کم کردن ابعاد..."
           find www/images -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) -print0 | while IFS= read -r -d '' file; do
             mogrify -resize "1200x1200>" -strip "$file" 2>/dev/null || true
           done
 
-          # مرحله ۲: بهینه‌سازی PNG
           echo ""
           echo "🖼️ مرحله ۲: بهینه‌سازی PNG..."
           find www/images -type f -iname "*.png" -print0 | while IFS= read -r -d '' file; do
@@ -199,7 +197,6 @@ jobs:
               optipng -o2 -quiet "$file" 2>/dev/null || true
           done
 
-          # مرحله ۳: بهینه‌سازی JPG
           echo ""
           echo "🖼️ مرحله ۳: بهینه‌سازی JPG..."
           find www/images -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) -print0 | while IFS= read -r -d '' file; do
@@ -225,6 +222,7 @@ jobs:
             "dependencies": {
               "@capacitor/core": "^7.4.0",
               "@capacitor/android": "^7.4.0",
+              "@capacitor/app": "^7.0.0",
               "@capacitor/preferences": "^7.0.0",
               "@capgo/capacitor-native-biometric": "^7.0.0"
             },
@@ -268,6 +266,24 @@ jobs:
       - name: Add Android
         run: |
           npx cap add android
+
+
+      # ==========================================
+      # INSTALL EXTRA PLUGINS
+      # ==========================================
+      - name: Install extra Capacitor plugins
+        run: |
+          npm install @capacitor/preferences@^7.0.0 @capacitor/app@^7.0.0
+          echo "✅ Extra plugins installed"
+
+
+      # ==========================================
+      # SYNC ANDROID
+      # ==========================================
+      - name: Sync Android
+        run: |
+          npx cap sync android
+          echo "✅ Android synced"
 
 
       # ==========================================
@@ -336,14 +352,6 @@ jobs:
 
           print("Fullscreen MainActivity created.")
           PY
-
-
-      # ==========================================
-      # SYNC ANDROID
-      # ==========================================
-      - name: Sync Android
-        run: |
-          npx cap sync android
 
 
       # ==========================================
