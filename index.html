@@ -259,7 +259,6 @@
     word-spacing: -0.5px;
   }
 
-  /* ============ عنوان فصل ============ */
   .chapter-title {
     display: block;
     color: #c9a86a;
@@ -275,8 +274,6 @@
   }
 
   /* ============ جداکننده‌ها ============ */
-
-  /* خط ساده - بین فصل‌ها */
   .separator {
     display: block;
     text-align: center;
@@ -310,7 +307,6 @@
     letter-spacing: 5px;
   }
 
-  /* خط تزئینی با ستاره - بین صحنه‌ها */
   .separator-star {
     display: block;
     text-align: center;
@@ -323,7 +319,6 @@
     line-height: 1;
   }
 
-  /* سه تا لوزی - فلش‌بک */
   .separator-diamond {
     display: block;
     text-align: center;
@@ -349,7 +344,6 @@
     box-shadow: 0 0 20px rgba(201,168,106,0.06);
   }
 
-  /* نسخه‌ای که کل خط رو هایلایت می‌کنه */
   .story-highlight.block {
     display: block;
     margin: 18px 0;
@@ -814,6 +808,14 @@ const STORIES = [
     genre: "جنایی کلاسیک",
     cover: "images/case64/c64_cover.png",
     file: "case64.txt"
+  },
+  {
+    id: "case65",
+    title: "مسافر آخر — بخش دوم",
+    subtitle: "پرونده‌ی شماره ۶۵",
+    genre: "جنایی معمایی",
+    cover: "images/case65/c65_cover.png",
+    file: "case65.txt"
   }
 ];
 
@@ -975,7 +977,7 @@ async function openStory(story) {
 }
 
 /* ============================================================
-   فرمت متن - با پشتیبانی از جداکننده‌ها و هایلایت
+   فرمت متن — با پشتیبانی از جداکننده‌ها و هایلایت
    ============================================================ */
 function formatStory(text, container) {
   const cleanText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -992,7 +994,7 @@ function formatStory(text, container) {
       return;
     }
 
-    // ===== هایلایت کل خط: [[متن]] =====
+    // ===== هایلایت کل خط =====
     const highlightMatch = trimmed.match(/^\[\[(.+?)\]\]$/);
     if (highlightMatch) {
       const hl = document.createElement('span');
@@ -1002,7 +1004,7 @@ function formatStory(text, container) {
       return;
     }
 
-    // ===== جداکننده خط ساده: ━━━━━━━ =====
+    // ===== جداکننده خط ساده =====
     if (/^━+$/.test(trimmed)) {
       const sep = document.createElement('span');
       sep.className = 'separator';
@@ -1011,7 +1013,7 @@ function formatStory(text, container) {
       return;
     }
 
-    // ===== جداکننده ستاره‌دار: ★ ────── ★ =====
+    // ===== جداکننده ستاره‌دار =====
     if (/^★\s*[─━—]+\s*★$/.test(trimmed)) {
       const sep = document.createElement('span');
       sep.className = 'separator-star';
@@ -1020,7 +1022,7 @@ function formatStory(text, container) {
       return;
     }
 
-    // ===== جداکننده لوزی: ◈ ◈ ◈ =====
+    // ===== جداکننده لوزی =====
     if (/^◈\s*◈\s*◈$/.test(trimmed)) {
       const sep = document.createElement('span');
       sep.className = 'separator-diamond';
@@ -1046,7 +1048,6 @@ function formatStory(text, container) {
     }
     // ===== خطوط معمولی =====
     else {
-      // چک کن توی یه خط، هایلایت هست یا نه
       if (trimmed.includes('[[') && trimmed.includes(']]')) {
         frag.appendChild(createMixedLine(line));
         return;
@@ -1061,7 +1062,7 @@ function formatStory(text, container) {
 }
 
 /* ============================================================
-   ساخت خطی که هم متن عادی داره هم هایلایت
+   ساخت خطی که هم متن عادی دارد هم هایلایت
    ============================================================ */
 function createMixedLine(line) {
   const wrap = document.createElement('span');
@@ -1314,4 +1315,4 @@ function showToast(msg) {
 </script>
 
 </body>
-</html>
+ </html>
