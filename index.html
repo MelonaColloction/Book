@@ -25,7 +25,6 @@
   #libraryPage { display: block; }
   #readerPage  { display: none; }
 
-  /* ============ کتابخانه ============ */
   .library-header {
     padding: 40px 22px 25px;
     text-align: center;
@@ -36,48 +35,33 @@
   }
 
   .library-header .logo {
-    font-size: 0.72rem;
-    color: #c9a86a;
+    font-size: 0.72rem; color: #c9a86a;
     border: 1px solid rgba(201,168,106,0.3);
-    border-radius: 999px;
-    padding: 4px 14px;
-    display: inline-block;
-    letter-spacing: 1px;
-    margin-bottom: 14px;
+    border-radius: 999px; padding: 4px 14px;
+    display: inline-block; letter-spacing: 1px; margin-bottom: 14px;
   }
 
   .library-header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #f0e6d2;
-    letter-spacing: 0.5px;
+    margin: 0; font-size: 1.6rem; font-weight: 700;
+    color: #f0e6d2; letter-spacing: 0.5px;
   }
 
   .library-header .sub {
-    margin-top: 8px;
-    font-size: 0.8rem;
-    color: #666;
-    letter-spacing: 1.5px;
+    margin-top: 8px; font-size: 0.8rem;
+    color: #666; letter-spacing: 1.5px;
   }
 
   .stories-list {
-    max-width: 720px;
-    margin: 0 auto;
+    max-width: 720px; margin: 0 auto;
     padding: 25px 18px 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: flex; flex-direction: column; gap: 16px;
   }
 
   .story-card {
-    display: flex;
-    background: #121218;
+    display: flex; background: #121218;
     border: 1px solid #1e1e26;
-    border-radius: 14px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.25s ease;
+    border-radius: 14px; overflow: hidden;
+    cursor: pointer; transition: all 0.25s ease;
   }
 
   .story-card:active {
@@ -86,12 +70,9 @@
   }
 
   .story-card .cover {
-    width: 110px;
-    min-height: 130px;
-    flex-shrink: 0;
-    background: #1a1a22;
-    position: relative;
-    overflow: hidden;
+    width: 110px; min-height: 130px;
+    flex-shrink: 0; background: #1a1a22;
+    position: relative; overflow: hidden;
   }
 
   .story-card .cover img {
@@ -107,35 +88,24 @@
   }
 
   .story-card .info {
-    flex: 1;
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex: 1; padding: 16px 18px;
+    display: flex; flex-direction: column; justify-content: center;
     min-width: 0;
   }
 
   .story-card .info .genre {
-    font-size: 0.68rem;
-    color: #c9a86a;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
+    font-size: 0.68rem; color: #c9a86a;
+    letter-spacing: 1px; margin-bottom: 6px;
   }
 
   .story-card .info h3 {
-    margin: 0 0 4px;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #f0e6d2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin: 0 0 4px; font-size: 1.05rem;
+    font-weight: 600; color: #f0e6d2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
   .story-card .info .subtitle {
-    font-size: 0.78rem;
-    color: #777;
-    margin-bottom: 8px;
+    font-size: 0.78rem; color: #777; margin-bottom: 8px;
   }
 
   .story-card .info .progress-line {
@@ -144,15 +114,11 @@
   }
 
   .story-card .info .progress-line .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%; background: #c9a86a;
+    width: 6px; height: 6px; border-radius: 50%; background: #c9a86a;
   }
 
   .story-card .info .progress-line .dot.empty { background: #333; }
-
-  .story-card .info .progress-line .pct {
-    color: #c9a86a; font-weight: 600;
-  }
+  .story-card .info .progress-line .pct { color: #c9a86a; font-weight: 600; }
 
   /* ============ خواننده ============ */
   .reader-topbar {
@@ -169,74 +135,88 @@
     background: rgba(201,168,106,0.1);
     border: 1px solid rgba(201,168,106,0.25);
     color: #c9a86a;
-    width: 38px; height: 38px;
-    border-radius: 50%;
+    width: 38px; height: 38px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; cursor: pointer;
-    flex-shrink: 0; padding: 0;
-    font-family: inherit;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    padding: 0; font-family: inherit;
   }
 
   .reader-topbar .back-btn:active { transform: scale(0.92); }
 
   .reader-topbar .reader-title {
-    flex: 1;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #c9a86a;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 1; font-size: 0.9rem; font-weight: 600;
+    color: #c9a86a; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
   }
 
   .reader-topbar .mark-btn {
     background: rgba(201,168,106,0.1);
     border: 1px solid rgba(201,168,106,0.25);
-    color: #c9a86a;
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-family: inherit; font-size: 0.75rem;
-    cursor: pointer; flex-shrink: 0;
-    transition: all 0.2s ease;
+    color: #c9a86a; border-radius: 999px;
+    padding: 8px 14px; font-family: inherit;
+    font-size: 0.75rem; cursor: pointer;
+    flex-shrink: 0; transition: all 0.2s ease;
   }
 
   .reader-topbar .mark-btn:active { transform: scale(0.95); }
   .reader-topbar .mark-btn.saved {
-    background: rgba(201,168,106,0.25);
-    color: #f0e6d2;
+    background: rgba(201,168,106,0.25); color: #f0e6d2;
   }
 
   .reader-content {
-    max-width: 720px;
-    margin: 0 auto;
+    max-width: 720px; margin: 0 auto;
     padding: 30px 22px 140px;
   }
 
   #readerStory {
     white-space: pre-wrap;
-    font-size: 1.05rem;
-    font-weight: 300;
-    color: #cfcfcf;
-    text-align: justify;
+    font-size: 1.05rem; font-weight: 300;
+    color: #cfcfcf; text-align: justify;
     word-spacing: -0.5px;
   }
 
   .chapter-title {
-    display: block;
-    color: #c9a86a;
-    font-weight: 600;
-    font-size: 1.15rem;
-    margin-top: 38px;
-    margin-bottom: 12px;
+    display: block; color: #c9a86a;
+    font-weight: 600; font-size: 1.15rem;
+    margin-top: 38px; margin-bottom: 12px;
     letter-spacing: 0.3px;
   }
 
   .separator {
-    display: block;
-    color: #2a2a33;
-    font-size: 0.7rem;
-    letter-spacing: 3px;
-    margin: 28px 0;
-    text-align: center;
+    display: block; color: #2a2a33;
+    font-size: 0.7rem; letter-spacing: 3px;
+    margin: 28px 0; text-align: center;
   }
+
+  /* ============ عکس داخل داستان ============ */
+  .story-image {
+    display: block;
+    width: 100%;
+    height: 180px;
+    margin: 30px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #131318;
+    border: 1px solid #1e1e26;
+    position: relative;
+  }
+
+  .story-image img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    opacity: 0.9;
+  }
+
+  .story-image .ph {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    color: #2e2e38; font-size: 0.7rem;
+    letter-spacing: 1px;
+    background: repeating-linear-gradient(45deg, #101014, #101014 10px, #0e0e12 10px, #0e0e12 20px);
+  }
+
+  .story-image .ph .ph-icon { font-size: 1.6rem; margin-bottom: 6px; }
 
   /* ============ نوار پیشرفت ============ */
   .progress-track {
@@ -259,11 +239,9 @@
   .reader-controls button {
     background: rgba(201,168,106,0.1);
     border: 1px solid rgba(201,168,106,0.25);
-    color: #c9a86a;
-    border-radius: 999px;
-    padding: 9px 16px;
-    font-family: inherit; font-size: 0.75rem;
-    cursor: pointer;
+    color: #c9a86a; border-radius: 999px;
+    padding: 9px 16px; font-family: inherit;
+    font-size: 0.75rem; cursor: pointer;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     transition: all 0.2s ease;
@@ -278,14 +256,10 @@
     position: fixed; bottom: 80px; left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: rgba(201,168,106,0.95);
-    color: #0a0a0c;
-    padding: 10px 20px;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    opacity: 0; pointer-events: none;
-    transition: all 0.3s ease;
-    z-index: 100;
+    color: #0a0a0c; padding: 10px 20px;
+    border-radius: 999px; font-size: 0.8rem;
+    font-weight: 600; opacity: 0; pointer-events: none;
+    transition: all 0.3s ease; z-index: 100;
     white-space: nowrap;
   }
 
@@ -300,23 +274,21 @@
     .story-card .cover { width: 95px; min-height: 120px; }
     .story-card .info { padding: 14px 16px; }
     .story-card .info h3 { font-size: 1rem; }
+    .story-image { height: 150px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ==================== کتابخانه ==================== -->
 <div id="libraryPage">
   <div class="library-header">
     <div class="logo">کتابخانه‌ی پرونده‌ها</div>
     <h1>پرونده‌های کارآگاهی</h1>
     <div class="sub">مجموعه داستان‌های جنایی معمایی</div>
   </div>
-
   <div class="stories-list" id="storiesList"></div>
 </div>
 
-<!-- ==================== خواننده ==================== -->
 <div id="readerPage">
   <div class="reader-topbar">
     <button class="back-btn" onclick="goBack()">→</button>
@@ -341,7 +313,6 @@
 <script>
 /* ============================================================
    📚 لیست داستان‌ها
-   برای اضافه کردن داستان جدید، فقط یه آبجکت اینجا اضافه کن
    ============================================================ */
 const STORIES = [
   {
@@ -349,24 +320,16 @@ const STORIES = [
     title: "تماس از خودم",
     subtitle: "پرونده‌ی شماره ۶۳",
     genre: "جنایی معمایی",
-    cover: "images/case63.png",   // ← عکس توی پوشه‌ی images
-    file: "case63.txt"             // ← فایل txt توی ریشه‌ی پروژه
+    cover: "images/case63/cover.png",   // ← کاور توی پوشه‌ی خودش
+    file: "case63.txt"
   },
   {
     id: "case64",
     title: "اتاق بی‌پنجره",
     subtitle: "پرونده‌ی شماره ۶۴",
     genre: "جنایی روانشناختی",
-    cover: "images/case64.png",
+    cover: "images/case64/cover.png",
     file: "case64.txt"
-  },
-  {
-    id: "case65",
-    title: "مسافر آخر",
-    subtitle: "پرونده‌ی شماره ۶۵",
-    genre: "جنایی کلاسیک",
-    cover: "images/case65.png",
-    file: "case65.txt"
   }
 ];
 
@@ -449,7 +412,7 @@ async function openStory(story) {
 }
 
 /* ============================================================
-   فرمت متن
+   فرمت متن — با پشتیبانی از [IMG:path]
    ============================================================ */
 function formatStory(text, container) {
   const lines = text.split('\n');
@@ -457,6 +420,14 @@ function formatStory(text, container) {
 
   lines.forEach(line => {
     const trimmed = line.trim();
+
+    // تشخیص عکس: [IMG:images/case63/ch1.png]
+    const imgMatch = trimmed.match(/^\[IMG:(.+?)\]$/);
+    if (imgMatch) {
+      frag.appendChild(createStoryImage(imgMatch[1].trim()));
+      return;
+    }
+
     const span = document.createElement('span');
 
     if (/^فصل\s/.test(trimmed)) {
@@ -478,6 +449,31 @@ function formatStory(text, container) {
   });
 
   container.appendChild(frag);
+}
+
+/* ساخت باکس عکس داخل داستان */
+function createStoryImage(src) {
+  const wrap = document.createElement('div');
+  wrap.className = 'story-image';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = '';
+  img.loading = 'lazy';
+  img.onerror = function () {
+    this.style.display = 'none';
+    const ph = this.nextElementSibling;
+    if (ph) ph.style.display = 'flex';
+  };
+
+  const ph = document.createElement('div');
+  ph.className = 'ph';
+  ph.style.display = 'none';
+  ph.innerHTML = '<div class="ph-icon">🖼</div><div>' + src + '</div>';
+
+  wrap.appendChild(img);
+  wrap.appendChild(ph);
+  return wrap;
 }
 
 /* ============================================================
@@ -586,4 +582,4 @@ renderLibrary();
 </script>
 
 </body>
-  </html>
+</html>
