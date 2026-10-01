@@ -20,6 +20,7 @@
     font-family: 'Vazirmatn', Tahoma, sans-serif;
     line-height: 2.1;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   #libraryPage { display: block; }
@@ -727,13 +728,15 @@ const STORIES = [
     title: "مسافر آخر",
     subtitle: "پرونده‌ی شماره ۶۴",
     genre: "جنایی کلاسیک",
-    cover: "images/case64/cover.png",
+    cover: "images/case64/c64_cover.png",
     file: "case64.txt"
   }
 ];
 
 const STORAGE_PREFIX = 'story_progress_';
 let currentStory = null;
+let autoSaveTimer = null;
+let userScrolled = false;
 
 /* ============================================================
    نمایش کتابخانه
@@ -776,6 +779,7 @@ function renderLibrary() {
    ============================================================ */
 async function openStory(story) {
   currentStory = story;
+  userScrolled = false;
 
   document.getElementById('libraryPage').style.display = 'none';
   document.getElementById('aboutPage').style.display = 'none';
@@ -794,15 +798,17 @@ async function openStory(story) {
     storyEl.innerHTML = '';
     formatStory(text, storyEl);
 
+    // ===== پرش به آخرین محل ذخیره‌شده =====
     setTimeout(() => {
       const saved = getBookmark(story.id);
       if (saved && saved > 0) {
         window.scrollTo({ top: saved, behavior: 'auto' });
-        showToast('از جایی که موندی ادامه بده');
+        const percent = getProgress(story.id);
+        showToast('از جایی که موندی ادامه بده — ' + percent + '٪');
       } else {
         window.scrollTo({ top: 0, behavior: 'auto' });
       }
-    }, 150);
+    }, 250);
 
   } catch (err) {
     storyEl.innerHTML =
@@ -876,7 +882,7 @@ function createStoryImage(src) {
 }
 
 /* ============================================================
-   برگشت
+   برگشت به کتابخانه
    ============================================================ */
 function goBack() {
   if (currentStory) saveBookmarkSilent();
@@ -889,6 +895,11 @@ function goBack() {
 
   renderLibrary();
   currentStory = null;
+
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
+  }
 }
 
 /* ============================================================
@@ -908,7 +919,7 @@ function closeAbout() {
 }
 
 /* ============================================================
-   نشانه
+   نشانه (ذخیره‌ی دستی با دکمه)
    ============================================================ */
 function saveBookmark() {
   if (!currentStory) return;
@@ -931,6 +942,9 @@ function saveBookmark() {
   showToast('نشانه ذخیره شد — ' + percent + '٪');
 }
 
+/* ============================================================
+   ذخیره‌ی خودکار (بدون زدن دکمه)
+   ============================================================ */
 function saveBookmarkSilent() {
   if (!currentStory) return;
   const scrollPos = window.scrollY;
@@ -942,6 +956,9 @@ function saveBookmarkSilent() {
   }));
 }
 
+/* ============================================================
+   خواندن اطلاعات ذخیره‌شده
+   ============================================================ */
 function getBookmark(storyId) {
   try {
     const data = JSON.parse(localStorage.getItem(STORAGE_PREFIX + storyId));
@@ -968,15 +985,43 @@ function jumpToBookmark() {
 }
 
 /* ============================================================
-   نوار پیشرفت
+   نوار پیشرفت + ذخیره‌ی خودکار با اسکرول
    ============================================================ */
 const bar = document.getElementById('progressBar');
+
 window.addEventListener('scroll', () => {
   if (!currentStory) return;
+
+  userScrolled = true;
+
+  // نوار پیشرفت
   const h = document.documentElement;
   const total = h.scrollHeight - h.clientHeight;
   if (total > 0) bar.style.width = (h.scrollTop / total * 100) + '%';
+
+  // ذخیره‌ی خودکار با تأخیر ۱.۵ ثانیه (بعد از توقف اسکرول)
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    saveBookmarkSilent();
+  }, 1500);
 }, { passive: true });
+
+/* ============================================================
+   ذخیره‌ی خودکار موقع بستن اپ / پنهان شدن صفحه
+   ============================================================ */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && currentStory) {
+    saveBookmarkSilent();
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  if (currentStory) saveBookmarkSilent();
+});
+
+window.addEventListener('pagehide', () => {
+  if (currentStory) saveBookmarkSilent();
+});
 
 /* ============================================================
    اعلان
@@ -987,7 +1032,7 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
 /* ============================================================
@@ -997,4 +1042,4 @@ renderLibrary();
 </script>
 
 </body>
- </html>
+</html>
