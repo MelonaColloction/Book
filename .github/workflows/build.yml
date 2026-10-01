@@ -172,7 +172,7 @@ jobs:
 
 
       # ==========================================
-      # OPTIMIZE IMAGES (SMART)
+      # OPTIMIZE IMAGES
       # ==========================================
       - name: Optimize images
         run: |
@@ -183,33 +183,25 @@ jobs:
           echo ""
           echo "📊 حجم قبل از بهینه‌سازی:"
           du -sh www/images
-          echo "--- تعداد فایل‌ها ---"
-          find www/images -type f | wc -l
 
-          # ==========================================
           # مرحله ۱: کم کردن ابعاد عکس‌های بزرگ
-          # ==========================================
           echo ""
-          echo "🔧 مرحله ۱: کم کردن ابعاد عکس‌های بزرگتر از ۱۲۰۰ پیکسل..."
+          echo "🔧 مرحله ۱: کم کردن ابعاد..."
           find www/images -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) -print0 | while IFS= read -r -d '' file; do
             mogrify -resize "1200x1200>" -strip "$file" 2>/dev/null || true
           done
 
-          # ==========================================
-          # مرحله ۲: بهینه‌سازی PNG با حفظ کیفیت
-          # ==========================================
+          # مرحله ۲: بهینه‌سازی PNG
           echo ""
-          echo "🖼️ مرحله ۲: بهینه‌سازی PNG ها (کیفیت ۸۵-۱۰۰٪)..."
+          echo "🖼️ مرحله ۲: بهینه‌سازی PNG..."
           find www/images -type f -iname "*.png" -print0 | while IFS= read -r -d '' file; do
             pngquant --quality=85-100 --speed 1 --strip --force --output "$file" "$file" 2>/dev/null || \
               optipng -o2 -quiet "$file" 2>/dev/null || true
           done
 
-          # ==========================================
           # مرحله ۳: بهینه‌سازی JPG
-          # ==========================================
           echo ""
-          echo "🖼️ مرحله ۳: بهینه‌سازی JPG ها (کیفیت ۸۵٪)..."
+          echo "🖼️ مرحله ۳: بهینه‌سازی JPG..."
           find www/images -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) -print0 | while IFS= read -r -d '' file; do
             jpegoptim --max=85 --strip-all --quiet "$file" 2>/dev/null || true
           done
@@ -217,10 +209,6 @@ jobs:
           echo ""
           echo "📊 حجم بعد از بهینه‌سازی:"
           du -sh www/images
-          echo "--- تعداد فایل‌ها ---"
-          find www/images -type f | wc -l
-
-          echo ""
           echo "✅ بهینه‌سازی کامل شد."
 
 
@@ -237,6 +225,7 @@ jobs:
             "dependencies": {
               "@capacitor/core": "^7.4.0",
               "@capacitor/android": "^7.4.0",
+              "@capacitor/preferences": "^7.0.0",
               "@capgo/capacitor-native-biometric": "^7.0.0"
             },
             "devDependencies": {
