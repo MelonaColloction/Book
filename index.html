@@ -259,25 +259,109 @@
     word-spacing: -0.5px;
   }
 
+  /* ============ عنوان فصل ============ */
   .chapter-title {
     display: block;
     color: #c9a86a;
-    font-weight: 600;
-    font-size: 1.15rem;
-    margin-top: 38px;
-    margin-bottom: 12px;
-    letter-spacing: 0.3px;
+    font-weight: 700;
+    font-size: 1.35rem;
+    margin-top: 55px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(201,168,106,0.2);
+    text-align: center;
+    line-height: 1.8;
   }
 
+  /* ============ جداکننده‌ها ============ */
+
+  /* خط ساده - بین فصل‌ها */
   .separator {
     display: block;
-    color: #2a2a33;
-    font-size: 0.7rem;
-    letter-spacing: 3px;
-    margin: 28px 0;
     text-align: center;
+    margin: 45px 0;
+    color: #c9a86a;
+    opacity: 0.45;
+    font-size: 0.75rem;
+    font-weight: 300;
+    position: relative;
+    line-height: 1;
+    padding: 20px 0;
   }
 
+  .separator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c9a86a 20%, #c9a86a 80%, transparent);
+    opacity: 0.4;
+    transform: translateY(-50%);
+  }
+
+  .separator span {
+    background: #0a0a0c;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+    letter-spacing: 5px;
+  }
+
+  /* خط تزئینی با ستاره - بین صحنه‌ها */
+  .separator-star {
+    display: block;
+    text-align: center;
+    margin: 38px 0;
+    color: #c9a86a;
+    opacity: 0.55;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  /* سه تا لوزی - فلش‌بک */
+  .separator-diamond {
+    display: block;
+    text-align: center;
+    margin: 38px 0;
+    color: #c9a86a;
+    opacity: 0.65;
+    font-size: 0.9rem;
+    letter-spacing: 8px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  /* ============ هایلایت ============ */
+  .story-highlight {
+    display: inline;
+    background: linear-gradient(90deg, rgba(201,168,106,0.18), rgba(201,168,106,0.08));
+    color: #f0e6d2;
+    padding: 2px 10px;
+    border-right: 3px solid #c9a86a;
+    border-radius: 4px;
+    font-weight: 600;
+    line-height: 1.8;
+    box-shadow: 0 0 20px rgba(201,168,106,0.06);
+  }
+
+  /* نسخه‌ای که کل خط رو هایلایت می‌کنه */
+  .story-highlight.block {
+    display: block;
+    margin: 18px 0;
+    padding: 14px 18px;
+    text-align: center;
+    font-size: 1.05rem;
+    letter-spacing: 0.3px;
+    border-right: 4px solid #c9a86a;
+    border-left: 1px solid rgba(201,168,106,0.15);
+  }
+
+  /* ============ عکس داخل داستان ============ */
   .story-image {
     display: block;
     width: 100%;
@@ -309,7 +393,7 @@
 
   /* ============ فوتر داستان ============ */
   .story-footer {
-    margin-top: 50px;
+    margin-top: 60px;
     padding: 30px 0 20px;
     text-align: center;
     border-top: 1px solid #1a1a20;
@@ -437,14 +521,8 @@
     font-size: 0.88rem;
   }
 
-  .about-section .person-row .role {
-    color: #666;
-  }
-
-  .about-section .person-row .name {
-    color: #f0e6d2;
-    font-weight: 600;
-  }
+  .about-section .person-row .role { color: #666; }
+  .about-section .person-row .name { color: #f0e6d2; font-weight: 600; }
 
   .about-section .disclaimer {
     font-size: 0.82rem;
@@ -495,9 +573,7 @@
     display: none;
   }
 
-  .progress-track.show {
-    display: block;
-  }
+  .progress-track.show { display: block; }
 
   .progress-bar {
     height: 100%; width: 0%;
@@ -602,6 +678,9 @@
     .story-card .info h3 { font-size: 1rem; }
     .story-image { height: 150px; }
     .about-hero h1 { font-size: 1.5rem; }
+    .chapter-title { font-size: 1.15rem; margin-top: 45px; }
+    .separator { margin: 35px 0; }
+    .separator-star, .separator-diamond { margin: 30px 0; }
     .fab-bookmark, .fab-jump {
       width: 50px;
       height: 50px;
@@ -758,7 +837,6 @@ async function initPrefs() {
     return;
   }
 
-  // بعضی وقتا پلاگین با تأخیر لود می‌شه
   try {
     await new Promise(r => setTimeout(r, 700));
     if (Capacitor.Plugins && Capacitor.Plugins.Preferences) {
@@ -772,19 +850,17 @@ async function initPrefs() {
 }
 
 /* ============================================================
-   ذخیره / خواندن (localStorage + Preferences)
+   ذخیره / خواندن
    ============================================================ */
 async function setStorage(key, value) {
   const jsonValue = JSON.stringify(value);
 
-  // اول localStorage (مطمئن‌ترین)
   try {
     localStorage.setItem(key, jsonValue);
   } catch (e) {
     console.log('localStorage set error:', e);
   }
 
-  // بعد Preferences
   if (prefs) {
     try {
       await prefs.set({ key: key, value: jsonValue });
@@ -795,13 +871,11 @@ async function setStorage(key, value) {
 }
 
 async function getStorage(key) {
-  // اول localStorage
   try {
     const value = localStorage.getItem(key);
     if (value) return JSON.parse(value);
   } catch (e) {}
 
-  // بعد Preferences
   if (prefs) {
     try {
       const result = await prefs.get({ key: key });
@@ -877,7 +951,6 @@ async function openStory(story) {
     storyEl.innerHTML = '';
     formatStory(text, storyEl);
 
-    // صبر کن متن و عکس‌ها لود بشن
     await new Promise(resolve => setTimeout(resolve, 500));
 
     const bookmark = await getBookmark(story.id);
@@ -902,7 +975,7 @@ async function openStory(story) {
 }
 
 /* ============================================================
-   فرمت متن
+   فرمت متن - با پشتیبانی از جداکننده‌ها و هایلایت
    ============================================================ */
 function formatStory(text, container) {
   const cleanText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -912,26 +985,72 @@ function formatStory(text, container) {
   lines.forEach(line => {
     const trimmed = line.trim();
 
+    // ===== عکس =====
     const imgMatch = trimmed.match(/^\[IMG:\s*(.+?)\s*\]$/);
     if (imgMatch) {
       frag.appendChild(createStoryImage(imgMatch[1]));
       return;
     }
 
+    // ===== هایلایت کل خط: [[متن]] =====
+    const highlightMatch = trimmed.match(/^\[\[(.+?)\]\]$/);
+    if (highlightMatch) {
+      const hl = document.createElement('span');
+      hl.className = 'story-highlight block';
+      hl.textContent = highlightMatch[1];
+      frag.appendChild(hl);
+      return;
+    }
+
+    // ===== جداکننده خط ساده: ━━━━━━━ =====
+    if (/^━+$/.test(trimmed)) {
+      const sep = document.createElement('span');
+      sep.className = 'separator';
+      sep.innerHTML = '<span>◆ ◆ ◆</span>';
+      frag.appendChild(sep);
+      return;
+    }
+
+    // ===== جداکننده ستاره‌دار: ★ ────── ★ =====
+    if (/^★\s*[─━—]+\s*★$/.test(trimmed)) {
+      const sep = document.createElement('span');
+      sep.className = 'separator-star';
+      sep.textContent = '★ ─────────── ★';
+      frag.appendChild(sep);
+      return;
+    }
+
+    // ===== جداکننده لوزی: ◈ ◈ ◈ =====
+    if (/^◈\s*◈\s*◈$/.test(trimmed)) {
+      const sep = document.createElement('span');
+      sep.className = 'separator-diamond';
+      sep.textContent = '◈ ◈ ◈';
+      frag.appendChild(sep);
+      return;
+    }
+
     const span = document.createElement('span');
 
+    // ===== عنوان فصل =====
     if (/^فصل\s/.test(trimmed)) {
       span.className = 'chapter-title';
       span.textContent = trimmed;
-    } else if (/^━+$/.test(trimmed)) {
-      span.className = 'separator';
-      span.textContent = '• • •';
-    } else if (/^پایان\.?$/.test(trimmed)) {
+    }
+    // ===== پایان =====
+    else if (/^پایان\.?$/.test(trimmed)) {
       span.className = 'chapter-title';
       span.style.textAlign = 'center';
-      span.style.marginTop = '40px';
+      span.style.marginTop = '60px';
+      span.style.borderBottom = 'none';
       span.textContent = 'پایان';
-    } else {
+    }
+    // ===== خطوط معمولی =====
+    else {
+      // چک کن توی یه خط، هایلایت هست یا نه
+      if (trimmed.includes('[[') && trimmed.includes(']]')) {
+        frag.appendChild(createMixedLine(line));
+        return;
+      }
       span.textContent = line + '\n';
     }
 
@@ -941,6 +1060,43 @@ function formatStory(text, container) {
   container.appendChild(frag);
 }
 
+/* ============================================================
+   ساخت خطی که هم متن عادی داره هم هایلایت
+   ============================================================ */
+function createMixedLine(line) {
+  const wrap = document.createElement('span');
+  wrap.style.display = 'block';
+
+  const regex = /\[\[(.+?)\]\]/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(line)) !== null) {
+    if (match.index > lastIndex) {
+      const before = document.createTextNode(line.substring(lastIndex, match.index));
+      wrap.appendChild(before);
+    }
+
+    const hl = document.createElement('span');
+    hl.className = 'story-highlight';
+    hl.textContent = match[1];
+    wrap.appendChild(hl);
+
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < line.length) {
+    const after = document.createTextNode(line.substring(lastIndex));
+    wrap.appendChild(after);
+  }
+
+  wrap.appendChild(document.createTextNode('\n'));
+  return wrap;
+}
+
+/* ============================================================
+   ساخت عکس داخل داستان
+   ============================================================ */
 function createStoryImage(src) {
   const wrap = document.createElement('div');
   wrap.className = 'story-image';
@@ -1007,7 +1163,7 @@ function closeAbout() {
 }
 
 /* ============================================================
-   نشانه (دستی با دکمه‌ی شناور)
+   نشانه (دستی با دکمه شناور)
    ============================================================ */
 async function saveBookmark() {
   if (!currentStory) return;
@@ -1068,7 +1224,7 @@ async function jumpToBookmark() {
 }
 
 /* ============================================================
-   مدیریت دکمه‌ی Back گوشی
+   دکمه‌ی Back گوشی
    ============================================================ */
 async function initBackButton() {
   if (typeof Capacitor === 'undefined') return;
@@ -1079,19 +1235,16 @@ async function initBackButton() {
 
   try {
     await Capacitor.Plugins.App.addListener('backButton', async ({ canGoBack }) => {
-      // اگه توی صفحه‌ی خواننده هستیم → برگرد به کتابخانه
       if (document.getElementById('readerPage').style.display === 'block') {
         await goBack();
         return;
       }
 
-      // اگه توی صفحه‌ی درباره هستیم → برگرد به کتابخانه
       if (document.getElementById('aboutPage').style.display === 'block') {
         closeAbout();
         return;
       }
 
-      // اگه توی کتابخانه هستیم → خروج از اپ
       try {
         await Capacitor.Plugins.App.exitApp();
       } catch (e) {
@@ -1099,14 +1252,14 @@ async function initBackButton() {
       }
     });
 
-    console.log('✅ Back button handler فعال شد');
+    console.log('✅ Back button فعال شد');
   } catch (e) {
     console.log('Back button error:', e);
   }
 }
 
 /* ============================================================
-   نوار پیشرفت + ذخیره‌ی خودکار با اسکرول
+   نوار پیشرفت + ذخیره خودکار
    ============================================================ */
 const bar = document.getElementById('progressBar');
 
@@ -1124,12 +1277,10 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 /* ============================================================
-   ذخیره‌ی خودکار موقع بستن اپ / مخفی شدن
+   ذخیره خودکار موقع بستن
    ============================================================ */
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && currentStory) {
-    saveBookmarkSilent(false);
-  }
+  if (document.hidden && currentStory) saveBookmarkSilent(false);
 });
 
 window.addEventListener('beforeunload', () => {
